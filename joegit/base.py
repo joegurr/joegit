@@ -3,10 +3,10 @@ import os
 from . import data
 
 
-def write_tree(directoru='.'):
+def write_tree(directory="."):
     with os.scandir(directory) as it:
         for entry in it:
-            full = f'{directory}/{entry.name}'
+            full = f"{directory}/{entry.name}"
             if entry.is_file(follow_symlinks=False):
                 # TODO Write the file to object store
                 print(full)
