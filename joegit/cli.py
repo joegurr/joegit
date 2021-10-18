@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+import textwrap
 
 from . import base
 from . import data
@@ -35,6 +36,18 @@ def parse_args():
     read_tree_parser.set_defaults(func=read_tree)
     read_tree_parser.add_argument("tree")
 
+    commit_parser = commands.add_parser("commit")
+    commit_parser.set_defaults(func=commit)
+    commit_parser.add_argument("-m", "--message", required=True)
+
+    log_parser = commands.add_parser("log")
+    log_parser.set_defaults(func=log)
+    log_parser.add_argument("old", nargs="?")
+
+    checkout_parser = commands.add_parser("checkout")
+    checkout_parser.set_defaults(func=checkout)
+    checkout_parser.add_argument("old")
+
     return parser.parse_args()
 
 
@@ -59,3 +72,23 @@ def write_tree(args):
 
 def read_tree(args):
     base.read_tree(args.tree)
+
+
+def commit(args):
+    print(base.commit(args.message))
+
+
+def log(args):
+    old = args.old or data.get_HEAD()
+    while old:
+        commit = base.get_commit(old)
+
+        print(f"commit {old}\n")
+        print(textwrap.indent(commit.message, "    "))
+        print("")
+
+        old = commit.parent
+
+
+def checkout(args):
+    base.checkout(args.old)

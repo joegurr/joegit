@@ -1,4 +1,8 @@
+import itertools
+import operator
 import os
+
+from collections import namedtuple
 
 from . import data
 
@@ -71,6 +75,50 @@ def read_tree(tree_old):
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "wb") as f:
             f.write(data.get_object(old))
+
+
+def commit(message):
+    commit = f"tree {write_tree()}\n"
+
+    HEAD = data.get_HEAD()
+    if HEAD:
+        commit += f"parent {HEAD}\n"
+
+    commit += "\n"
+    commit += f"{message}\n"
+
+    old = data.hash_object(commit.encode(), "commit")
+
+    data.set_HEAD(old)
+
+    return old
+
+
+def checkout(old):
+    commit = get_commit(old)
+    read_tree(commit.tree)
+    data.set_HEAD(old)
+
+
+Commit = namedtuple("Commit", ["tree", "parent", "message"])
+
+
+def get_commit(old):
+    parent = None
+
+    commit = data.get_object(old, "commit").decode()
+    lines = iter(commit.splitlines())
+    for line in itertools.takewhile(operator.truth, lines):
+        key, value = line.split(" ", 1)
+        if key == "tree":
+            tree = value
+        elif key == "parent":
+            parent = value
+        else:
+            raise ValueError(f"Unknown field {key}")
+
+    message = "\n".join(lines)
+    return Commit(tree=tree, parent=parent, message=message)
 
 
 def is_ignored(path):
