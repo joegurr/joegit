@@ -1,7 +1,5 @@
 # joegit
 
-## My attempt to learn more about git by building it.
-
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 
 I wanted to learn more about how the internals of git worked, for me the best way to do that was to try and build a subset of the features.
