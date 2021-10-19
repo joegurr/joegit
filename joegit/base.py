@@ -17,34 +17,34 @@ def write_tree(directory="."):
             if entry.is_file(follow_symlinks=False):
                 type_ = "blob"
                 with open(full, "rb") as f:
-                    old = data.hash_object(f.read())
+                    oid = data.hash_object(f.read())
             elif entry.is_dir(follow_symlinks=False):
                 type_ = "tree"
-                old = write_tree(full)
-            entries.append((entry.name, old, type_))
-    tree = "".join(f"{type_} {old} {name}\n" for name, old, type_ in sorted(entries))
+                oid = write_tree(full)
+            entries.append((entry.name, oid, type_))
+    tree = "".join(f"{type_} {oid} {name}\n" for name, oid, type_ in sorted(entries))
     return data.hash_object(tree.encode(), "tree")
 
 
-def _iter_tree_entries(old):
-    if not old:
+def _iter_tree_entries(oid):
+    if not oid:
         return
-    tree = data.get_object(old, "tree")
+    tree = data.get_object(oid, "tree")
     for entry in tree.decode().splitlines():
-        type_, old, name = entry.split(" ", 2)
-        yield type_, old, name
+        type_, oid, name = entry.split(" ", 2)
+        yield type_, oid, name
 
 
-def get_tree(old, base_path=""):
+def get_tree(oid, base_path=""):
     result = {}
-    for type_, old, name in _iter_tree_entries(old):
+    for type_, oid, name in _iter_tree_entries(oid):
         if "/" in name or name in ("..", "."):
             raise ValueError(f"name: {name} is incorrect")
         path = base_path + name
         if type_ == "blob":
-            result[path] = old
+            result[path] = oid
         elif type_ == "tree":
-            result.update(get_tree(old, f"{path}/"))
+            result.update(get_tree(oid, f"{path}/"))
         else:
             raise ValueError(f"Unknown tree entry {type_}")
     return result
@@ -69,12 +69,12 @@ def _empty_current_directory():
                 pass
 
 
-def read_tree(tree_old):
+def read_tree(tree_oid):
     _empty_current_directory()
-    for path, old in get_tree(tree_old, base_path="./").items():
+    for path, oid in get_tree(tree_oid, base_path="./").items():
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "wb") as f:
-            f.write(data.get_object(old))
+            f.write(data.get_object(oid))
 
 
 def commit(message):
@@ -87,26 +87,30 @@ def commit(message):
     commit += "\n"
     commit += f"{message}\n"
 
-    old = data.hash_object(commit.encode(), "commit")
+    oid = data.hash_object(commit.encode(), "commit")
 
-    data.set_HEAD(old)
+    data.set_HEAD(oid)
 
-    return old
+    return oid
 
 
-def checkout(old):
-    commit = get_commit(old)
+def checkout(oid):
+    commit = get_commit(oid)
     read_tree(commit.tree)
-    data.set_HEAD(old)
+    data.set_HEAD(oid)
+
+
+def create_tag(name, oid):
+    pass
 
 
 Commit = namedtuple("Commit", ["tree", "parent", "message"])
 
 
-def get_commit(old):
+def get_commit(oid):
     parent = None
 
-    commit = data.get_object(old, "commit").decode()
+    commit = data.get_object(oid, "commit").decode()
     lines = iter(commit.splitlines())
     for line in itertools.takewhile(operator.truth, lines):
         key, value = line.split(" ", 1)

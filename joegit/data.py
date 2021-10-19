@@ -9,9 +9,9 @@ def init():
     os.makedirs(f"{GIT_DIR}/objects")
 
 
-def set_HEAD(old):
+def set_HEAD(oid):
     with open(f"{GIT_DIR}/HEAD", "w") as f:
-        f.write(old)
+        f.write(oid)
 
 
 def get_HEAD():
