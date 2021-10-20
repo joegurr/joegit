@@ -20,4 +20,8 @@ I found this [amazing tutorial](https://www.leshenko.net/p/ugit/#). The code in 
 
 `joegit k`
 
+`joegit status`
+
+`joegit reset`
+
 \+ some internal functionality
