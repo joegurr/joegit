@@ -24,4 +24,8 @@ I found this [amazing tutorial](https://www.leshenko.net/p/ugit/#). The code in 
 
 `joegit reset`
 
+`joegit show`
+
+`joegit diff`
+
 \+ some internal functionality
