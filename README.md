@@ -28,4 +28,6 @@ I found this [amazing tutorial](https://www.leshenko.net/p/ugit/#). The code in 
 
 `joegit diff`
 
+`joegit merge`
+
 \+ some internal functionality
