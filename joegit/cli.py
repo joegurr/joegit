@@ -7,11 +7,13 @@ import textwrap
 from . import base
 from . import data
 from . import diff
+from . import remote
 
 
 def main():
-    args = parse_args()
-    args.func(args)
+    with data.change_git_dir("."):
+        args = parse_args()
+        args.func(args)
 
 
 def parse_args():
@@ -88,6 +90,10 @@ def parse_args():
     merge_base_parser.set_defaults(func=merge_base)
     merge_base_parser.add_argument("commit1", type=oid)
     merge_base_parser.add_argument("commit2", type=oid)
+
+    fetch_parser = commands.add_parser("fetch")
+    fetch_parser.set_defaults(func=fetch)
+    fetch_parser.add_argument("remote")
 
     return parser.parse_args()
 
@@ -232,3 +238,7 @@ def merge(args):
 
 def merge_base(args):
     print(base.get_merge_base(args.commit1, args.commit2))
+
+
+def fetch(args):
+    remote.fetch(args.remote)

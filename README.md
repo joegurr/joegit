@@ -30,4 +30,6 @@ I found this [amazing tutorial](https://www.leshenko.net/p/ugit/#). The code in 
 
 `joegit merge`
 
+`joegit fetch` - only for local remotes, just to get an idea of how this process works
+
 \+ some internal functionality
