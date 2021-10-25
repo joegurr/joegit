@@ -23,7 +23,34 @@ def fetch(remote_path):
         )
 
 
+def push(remote_path, refname):
+    # Get refs data
+    remote_refs = _get_remote_refs(remote_path)
+    remote_ref = remote_refs.get(refname)
+    local_ref = data.get_ref(refname).value
+    breakpoint()
+    if not local_ref:
+        raise Exception("No local ref")
+    if remote_ref and not base.is_ancestor_of(local_ref, remote_ref):
+        raise Exception("Force push not allowed")
+
+    assert not remote_ref or base.is_ancestor_of(local_ref, remote_ref)
+
+    # Compute which objects the server doesn't have
+    known_remote_refs = filter(data.object_exists, remote_refs.values())
+    remote_objects = set(base.iter_objects_in_commits(known_remote_refs))
+    local_objects = set(base.iter_objects_in_commits({local_ref}))
+    objects_to_push = local_objects - remote_objects
+
+    # Push missing objects
+    for oid in objects_to_push:
+        data.push_object(oid, remote_path)
+
+    # Update server ref to our value
+    with data.change_git_dir(remote_path):
+        data.update_ref(refname, data.RefValue(symbolic=False, value=local_ref))
+
+
 def _get_remote_refs(remote_path, prefix=""):
     with data.change_git_dir(remote_path):
-        breakpoint()
         return {refname: ref.value for refname, ref in data.iter_refs(prefix)}
