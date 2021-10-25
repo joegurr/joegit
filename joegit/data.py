@@ -86,7 +86,7 @@ def iter_refs(prefix="", deref=True):
 @contextmanager
 def get_index():
     index = {}
-    if os.pathisfile(f"{GIT_DIR}/index"):
+    if os.path.isfile(f"{GIT_DIR}/index"):
         with open(f"{GIT_DIR}/index") as f:
             index = json.load(f)
 
