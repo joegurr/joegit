@@ -37,8 +37,3 @@ I found this [amazing tutorial](https://www.leshenko.net/p/ugit/#). The code in 
 `joegit add`
 
 \+ some internal functionality
-
-## TODOs
-
-* Branches aren't following HEAD at the moment, I need to fix that!
-* Test force pushing is blocked

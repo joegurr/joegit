@@ -28,7 +28,6 @@ def push(remote_path, refname):
     remote_refs = _get_remote_refs(remote_path)
     remote_ref = remote_refs.get(refname)
     local_ref = data.get_ref(refname).value
-    breakpoint()
     if not local_ref:
         raise Exception("No local ref")
     if remote_ref and not base.is_ancestor_of(local_ref, remote_ref):
